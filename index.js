@@ -96,17 +96,22 @@ var createAPI = function() {
 
     var path = basePath + 'api/' + collectionName,
     server = path + '/server',
-    methods = path + '/methods.js',
+    methods = server + '/methods.js',
     collectionJS = path + '/' + collectionName + '.js',
     publications = server + '/publications.js',
-    serverAPI = basePath + 'startup/server/api.js';
+    serverAPI = basePath + 'startup/server/api.js',
+    serverImports = path + '/server_imports.js';
 
     msg.inicio(API);
 
     uf.mkdir(path);
 
+    uf.createFile(serverImports);
+    uf.prepend(serverImports, msg.getImport('./server/methods.js'));
+    uf.prepend(serverImports, msg.getImport('./server/publications.js'));
+
     uf.createFile(methods);
-    uf.append(methods, msg.getImportFrom(collectionName, './' + collectionName));
+    uf.append(methods, msg.getImportFrom(collectionName, '../' + collectionName));
 
     uf.createFile(collectionJS);
     uf.append(collectionJS, msg.getMongoImport());
@@ -114,14 +119,16 @@ var createAPI = function() {
     uf.append(collectionJS, msg.getCollectionExport(collectionName));
 
     uf.createFile(publications);
-    uf.append(publications, msg.getImport('../methods'));
+    // uf.append(publications, msg.getImport('../methods'));
     uf.prepend(publications, msg.getImportFrom(collectionName, '../' + collectionName));
+
+    uf.mkdir(path + "/client");
 
     msg.fim(API);
 
     msg.inicio("startup/server");
 
-    uf.prepend(serverAPI, msg.getImport('../../api/' + collectionName + '/server/publications.js'));
+    uf.prepend(serverAPI, msg.getImport('../../api/' + collectionName + '/server_imports.js'));
 
     msg.fim("startup/server");
 
