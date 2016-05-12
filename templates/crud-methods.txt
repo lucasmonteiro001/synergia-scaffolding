@@ -1,0 +1,17 @@
+import { COLLECTION_VAR } from "./../COLLECTION_NAME.js"
+import {Meteor} from 'meteor/meteor';
+
+Meteor.methods({
+    'COLLECTION_NAME.insert' ( dataObj ) {
+
+        dataObj.userId = this.userId;
+
+        check(dataObj,{nome:String,telefone:String,userId:String});
+
+        COLLECTION_VAR.insert( dataObj, ( error ) => {
+            if ( error ) {
+                console.log( error );
+            }
+        });
+    }
+});

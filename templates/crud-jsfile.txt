@@ -1,0 +1,77 @@
+import {Template} from 'meteor/templating';
+import './COLLECTION_NAME.html';
+import { COLLECTION_VAR } from '../../../api/COLLECTION_NAME/COLLECTION_NAME.js'
+
+
+let template;
+
+Template.COLLECTION_NAME.onCreated(() => {
+
+    //Faz alguma coisa ao criar o template
+
+});
+
+
+
+Template.COLLECTION_NAME.helpers({});
+
+Template.COLLECTION_NAMEAdd.onCreated(() => {
+
+    //Faz alguma coisa ao criar o template de inserção
+
+});
+
+
+
+Template.COLLECTION_NAMEAdd.events({
+
+    //Eventos do template de inserção
+
+    'submit form' (event, template) {
+
+        template = Template.instance();
+
+
+
+            event.preventDefault();
+
+            const COLLECTION_NAMEData = {
+                nome: template.find('[id="inputNome"]').value.trim(),
+                telefone: template.find('[id="inputTelefone"]').value.trim(),
+                userId: ''
+            };
+
+                Meteor.call('COLLECTION_NAME.insert', COLLECTION_NAMEData, (error) => {
+                    if (error) {
+                        alert(error.reason);
+                    } else {
+                        template.find('form').reset();
+                    }
+                });
+
+
+        }
+
+
+
+
+});
+
+
+Template.COLLECTION_NAMEView.onCreated(() => {
+
+    Meteor.subscribe('COLLECTION_NAME');
+
+
+
+});
+
+Template.COLLECTION_NAMEView.helpers({
+    COLLECTION_NAMEs() {
+        const COLLECTION_NAMEs = COLLECTION_VAR.find();
+        if ( COLLECTION_NAMEs ) {
+            return COLLECTION_NAMEs;
+        }
+    }
+});
+

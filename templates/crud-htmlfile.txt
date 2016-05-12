@@ -1,0 +1,45 @@
+<template name="COLLECTION_NAME">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-4">
+                <h4 class="page-header">Adicionar COLLECTION_NAME</h4>
+                {{> COLLECTION_NAMEAdd}}
+            </div>
+            <div class="col-xs-12 col-sm-7 col-sm-offset-1">
+                <h4 class="page-header">Books</h4>
+                {{> COLLECTION_NAMEView}}
+            </div>
+        </div>
+    </div>
+
+</template>
+
+<template name="COLLECTION_NAMEAdd">
+    <form id="userForm" data-toggle="validator" role="form">
+        <div class="form-group">
+            <label for="inputNome" class="control-label">Nome</label>
+            <input type="text" class="form-control" id="inputNome" placeholder="Antônio José" required>
+        </div>
+        <div class="form-group">
+            <label for="inputTelefone" class="control-label">Telefone</label>
+            <input type="text" class="form-control" id="inputTelefone" placeholder="99874-6547" required>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+
+</template>
+
+<template name="COLLECTION_NAMEView">
+    <ul class="list-group">
+        {{#each COLLECTION_NAMEs}}
+            <li class="list-group-item">
+                <strong>{{nome}}</strong> - {{telefone}}
+            </li>
+        {{else}}
+            <p class="alert alert-warning">Nenhum item cadastrado</p>
+        {{/each}}
+    </ul>
+</template>

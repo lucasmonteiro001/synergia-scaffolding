@@ -1,0 +1,17 @@
+import { COLLECTION_VAR } from "../COLLECTION_NAME.js"
+
+Meteor.publish( 'COLLECTION_NAME', function(){
+    var user = this.userId;
+
+    if ( user ) {
+        var data = [
+            COLLECTION_VAR.find( { "userId": user } )
+        ];
+    }
+
+    if ( data ) {
+        return data;
+    }
+
+    return this.ready();
+});
