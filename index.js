@@ -273,7 +273,7 @@ var createUI = function () {
     
     uf.createFile(jsFile);
     if (isTemplate == true) {
-        fs.readFile('./node_modules/synergia-scaffolding/templates/'+template+'-htmlfile.txt', 'utf8', function (err, data) {
+        fs.readFile('./node_modules/synergia-scaffolding/templates/'+template+'-jsfile.txt', 'utf8', function (err, data) {
             if (err) {
                 return console.log(err);
             }
