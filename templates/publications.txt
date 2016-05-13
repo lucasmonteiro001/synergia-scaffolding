@@ -1,0 +1,1 @@
+import { COLLECTION_VAR } from "../COLLECTION_NAME.js"

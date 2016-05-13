@@ -1,0 +1,20 @@
+import {Template} from 'meteor/templating';
+import './COLLECTION_NAME.html';
+import { COLLECTION_VAR } from '../../../api/COLLECTION_NAME/COLLECTION_NAME.js'
+
+Template.COLLECTION_NAME.onCreated(() => {
+
+    //Faz alguma coisa ao criar o template
+
+});
+
+
+
+Template.COLLECTION_NAME.helpers({
+
+//Faz alguam coias
+
+});
+
+
+

@@ -116,66 +116,17 @@ var createAPI = function () {
     uf.mkdir(path);
 
     uf.createFile(serverImports);
-    uf.prepend(serverImports, msg.getImport('./server/methods.js'));
-    uf.prepend(serverImports, msg.getImport('./server/publications.js'));
+    uf.setTemplateFile(serverImports,'serverImports',template,collectionName);
 
     uf.createFile(methods);
-
-    if (isTemplate == true) {
-        fs.readFile('./node_modules/synergia-scaffolding/templates/'+template+'-methods.txt', 'utf8', function (err, data) {
-            if (err) {
-                return console.log(err);
-            }
-
-            var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
-            var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
-            uf.append(methods, result);
-            //console.log(result);
-
-        });
-    } else {
-        uf.append(methods, msg.getImportFrom(collectionName, '../' + collectionName));
-    }
-
-
+    uf.setTemplateFile(methods,'methods',template,collectionName);
 
     uf.createFile(collectionJS);
-    if (isTemplate == true) {
-        fs.readFile('./node_modules/synergia-scaffolding/templates/'+template+'-collections.txt', 'utf8', function (err, data) {
-            if (err) {
-                return console.log(err);
-            }
-
-            var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
-            var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
-            uf.append(collectionJS, result);
-            //console.log(result);
-
-        });
-    } else {
-        uf.append(collectionJS, msg.getMongoImport());
-        uf.append(collectionJS, "\n\n");
-        uf.append(collectionJS, msg.getCollectionExport(collectionName));
-    }
-
+    uf.setTemplateFile(collectionJS,'collectionJS',template,collectionName);
 
 
     uf.createFile(publications);
-    if (isTemplate == true) {
-        fs.readFile('./node_modules/synergia-scaffolding/templates/'+template+'-publications.txt', 'utf8', function (err, data) {
-            if (err) {
-                return console.log(err);
-            }
-
-            var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
-            var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
-            uf.append(publications, result);
-            //console.log(result);
-
-        });
-    } else {
-        uf.prepend(publications, msg.getImportFrom(collectionName, '../' + collectionName));
-    }
+    uf.setTemplateFile(publications,'publications',template,collectionName);
 
 
     uf.mkdir(path + "/client");
@@ -233,8 +184,8 @@ var createUI = function () {
     var location = "",
         path = basePath + 'ui/',
         folder = path + permission + '/' + collectionName,
-        htmlFile = folder + '/' + collectionName + '.html',
-        jsFile = folder + '/' + collectionName + '.js',
+        uiHTMLFile = folder + '/' + collectionName + '.html',
+        uiJSFile = folder + '/' + collectionName + '.js',
         fileImport = msg.getImport('../../../ui/' + permission + '/' + collectionName);
 
     msg.inicio(UI);
@@ -246,49 +197,18 @@ var createUI = function () {
 
     path = basePath + 'ui/';
     folder = path + permission + '/' + collectionName;
-    htmlFile = folder + '/' + collectionName + '.html';
-    jsFile = folder + '/' + collectionName + '.js';
+    uiHTMLFile = folder + '/' + collectionName + '.html';
+    uiJSFile = folder + '/' + collectionName + '.js';
     fileImport = msg.getImport('../../../ui/' + permission + '/' + collectionName);
 
     uf.mkdir(folder);
-    uf.createFile(htmlFile);
-    if (isTemplate == true) {
-        fs.readFile('./node_modules/synergia-scaffolding/templates/'+template+'-htmlfile.txt', 'utf8', function (err, data) {
-            if (err) {
-                return console.log(err);
-            }
+    uf.createFile(uiHTMLFile);
+    uf.setTemplateFile(uiHTMLFile,'uiHTMLFile',template,collectionName);
 
-            var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
-            var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
-            uf.append(htmlFile, result);
-            //console.log(result);
 
-        });
-    } else {
-        uf.prepend(htmlFile, msg.getTemplate(collectionName));
-    }
-    
+    uf.createFile(uiJSFile);
+    uf.setTemplateFile(uiJSFile,'uiJSFile',template,collectionName);
 
-    
-    
-    uf.createFile(jsFile);
-    if (isTemplate == true) {
-        fs.readFile('./node_modules/synergia-scaffolding/templates/'+template+'-jsfile.txt', 'utf8', function (err, data) {
-            if (err) {
-                return console.log(err);
-            }
-
-            var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
-            var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
-            uf.append(jsFile, result);
-            //console.log(result);
-
-        });
-    } else {
-        uf.prepend(jsFile, msg.getImportFrom(collectionName, '../../../api/' + collectionName + '/' + collectionName));
-        uf.prepend(jsFile, msg.getTemplateImport());
-        uf.append(jsFile, 'import \'./' + collectionName + '.html\';');
-    }    
 
 
     msg.fim(UI);

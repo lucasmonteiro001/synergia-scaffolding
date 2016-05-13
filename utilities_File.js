@@ -1,6 +1,23 @@
 var fs = require('fs');
 var prependFile = require('prepend-file');
 var fse = require('fs-extra');
+var path = require('path');
+var msg = require('./utilities_Msg');
+
+
+var fileExists = function(filePath)
+{
+    try
+    {
+        console.log("FileExists:"+filePath);
+        return fs.statSync(filePath).isFile();
+    }
+    catch (err)
+    {
+        return false;
+    }
+}
+
 
 var readFile = function(file) {
     fs.readFile(file, 'utf8', function(err, contents) {
@@ -97,11 +114,41 @@ var exists = function(file) {
     fse.ensureFileSync(file);
 }
 
+var setTemplateFile = function(filePath,fileName,keyTemplate,collectionName) {
+    console.log("File:"+fileName+" | keyTemplate:"+keyTemplate+" | collectionName:"+collectionName);
+    if (keyTemplate != "" && fileExists('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt')) {
+        fs.readFile('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt', 'utf8', function (err, data) {
+            if (err) {
+                return console.log(err);
+            }
+            var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
+            var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
+            append(filePath, result);
+
+        });
+    } else {
+
+        if (fileExists('./node_modules/synergia-scaffolding/templates/' + fileName + '.txt')) {
+            fs.readFile('./node_modules/synergia-scaffolding/templates/' + fileName + '.txt', 'utf8', function (err, data) {
+                if (err) {
+                    return console.log(err);
+                }
+                var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
+                var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
+                append(filePath, result);
+            });
+
+        }
+
+
+    }
+}
 module.exports = {
     createFile: createFile,
     mkdir: mkdir,
     prepend: prepend,
     append: append,
     readFile: readFile,
-    exists: exists
+    exists: exists,
+    setTemplateFile:setTemplateFile
 }

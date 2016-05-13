@@ -1,0 +1,8 @@
+<template name="COLLECTION_NAME">
+    <div class="container">
+        <div class="row">
+            Página em Branco - COLLECTION_NAME
+        </div>
+    </div>
+
+</template>

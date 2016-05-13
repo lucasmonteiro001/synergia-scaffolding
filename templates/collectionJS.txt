@@ -1,0 +1,4 @@
+import { Mongo } from 'meteor/mongo';
+export const COLLECTION_VAR = new Mongo.Collection('COLLECTION_NAME');
+
+
