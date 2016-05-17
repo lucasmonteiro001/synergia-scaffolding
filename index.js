@@ -39,6 +39,12 @@ if (params.length === 0) {
     return;
 }
 
+//CARREGA INFORMAÇÕES DOS CAMPOS
+var tagsDetalhesCampos = [];
+var listaDeCampos = [];
+
+
+
 // obtem a acao (all, api, ui, route),
 // o nome da colecao,
 // a permissao (public ou authenticated)
@@ -47,6 +53,18 @@ action = tmpAction[0];
 if (tmpAction.length > 1) {
     template = tmpAction[1];
     isTemplate = true;
+
+    if (template != "" && uf.fileExists('./node_modules/synergia-scaffolding/templates/' + template + '/fields.csv')) {
+        tagsDetalhesCampos = uf.getFieldsDescriptionsTAGFromCSV('./node_modules/synergia-scaffolding/templates/' + template + '/fields.csv');
+        listaDeCampos = uf.getFieldsFromCSV('./node_modules/synergia-scaffolding/templates/' + template + '/fields.csv');
+    }
+
+} else {
+    if (template != "" && uf.fileExists('./node_modules/synergia-scaffolding/templates/fields.csv')) {
+        tagsDetalhesCampos = uf.getFieldsDescriptionsTAGFromCSV('./node_modules/synergia-scaffolding/templates/fields.csv');
+        listaDeCampos = uf.getFieldsFromCSV('./node_modules/synergia-scaffolding/templates/fields.csv');
+    }
+
 }
 collectionName = params[1];
 permission = params[2];
@@ -116,17 +134,27 @@ var createAPI = function () {
     uf.mkdir(path);
 
     uf.createFile(serverImports);
-    uf.setTemplateFile(serverImports,'serverImports',template,collectionName);
+    uf.setTemplateFile(serverImports,'serverImports',template,collectionName, function(err, data){
+    });
 
     uf.createFile(methods);
-    uf.setTemplateFile(methods,'methods',template,collectionName);
+    uf.setTemplateFile(methods,'methods',template,collectionName, function(err, data){
+        getAllCollectionFieldsForCheck(listaDeCampos, function(err, data2){
+            uf.updateFileWithOneTag(methods,'COLLECTION_FIELDS_FOR_CHECK',data2);
+        });
+    });
 
     uf.createFile(collectionJS);
-    uf.setTemplateFile(collectionJS,'collectionJS',template,collectionName);
+    uf.setTemplateFile(collectionJS,'collectionJS',template,collectionName, function(err, data){
+        getAllSchemaFieldItens(tagsDetalhesCampos,listaDeCampos, function(err, data2) {
+            uf.updateFileWithOneTag(collectionJS,'SCHEMA_FIELD_ITENS',data2);
+        });
+    });
 
 
     uf.createFile(publications);
-    uf.setTemplateFile(publications,'publications',template,collectionName);
+    uf.setTemplateFile(publications,'publications',template,collectionName, function(err, data){
+    });
 
 
     uf.mkdir(path + "/client");
@@ -201,34 +229,162 @@ var createUI = function () {
     uiJSFile = folder + '/' + collectionName + '.js';
     fileImport = msg.getImport('../../../ui/' + permission + '/' + collectionName);
 
+
+
     uf.mkdir(folder);
     uf.createFile(uiHTMLFile);
-    uf.setTemplateFile(uiHTMLFile,'uiHTMLFile',template,collectionName);
+    uf.setTemplateFile(uiHTMLFile,'uiHTMLFile',template,collectionName, function(err, data){
+        getAllFormItens(tagsDetalhesCampos,listaDeCampos, function(err, data2){
+            uf.updateFileWithOneTag(uiHTMLFile,'FORM_STRUTURE',data2);
+        });
+
+        setTimeout(function(){
+            getFieldsForViewCollections(listaDeCampos, function(err, data3){
+                uf.updateFileWithOneTag(uiHTMLFile,'FIELDS_FOR_VIEW_COLLECTIONS',data3);
+            });
+
+        }, 1000);
+
+
+
+    });
 
 
     uf.createFile(uiJSFile);
-    uf.setTemplateFile(uiJSFile,'uiJSFile',template,collectionName);
+    uf.setTemplateFile(uiJSFile,'uiJSFile',template,collectionName, function(err, data){
+        getAllVarFormItens(listaDeCampos, function(err, data2){
+            uf.updateFileWithOneTag(uiJSFile,'COLLECTION_FIELDS_JS',data2);
+        });
+    });
+
 
 
 
     msg.fim(UI);
 }
 
-// CODIGO PRINCIPAL
-if (action === ALL) {
-    createAPI();
-    createRoute();
-    createUI();
+getAllFormItens = function(tagsDetalhesCampos,listaDeCampos, callback) {
+
+    var onComplete = function() {
+        callback(null, formEstrutura);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+    var formEstrutura = "";
+    for (var i = 0; i < listaDeCampos.length; i++) {
+
+        uf.getFormItemFromTemplateFile(template,listaDeCampos[i],tagsDetalhesCampos,function(err, data){
+            formEstrutura = formEstrutura+data;
+            if (--tasksToGo === 0) {
+                // No tasks left, good to go
+                onComplete();
+            }
+        });
+
+    }
+
 }
-else if (action === API) {
-    createAPI();
+
+
+getAllVarFormItens = function(listaDeCampos, callback) {
+    var allVarFormItens = "";
+    var onComplete = function() {
+        callback(null, allVarFormItens);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+
+    for (var i = 0; i < listaDeCampos.length; i++) {
+        var campo = listaDeCampos[i];
+        allVarFormItens = allVarFormItens + campo['FIELD_NAME'] + ": template.find('[id=\"" + campo['FIELD_NAME'] + "\"]').value.trim(),\n";
+        if (--tasksToGo === 0) {
+            // No tasks left, good to go
+            onComplete();
+        }
+    }
+
 }
-else if (action === ROUTE) {
-    createRoute();
+
+getFieldsForViewCollections = function(listaDeCampos, callback) {
+    var fieldsForViewCollections = "";
+    var onComplete = function() {
+        callback(null, fieldsForViewCollections);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+
+    for (var i = 0; i < listaDeCampos.length; i++) {
+        var campo = listaDeCampos[i];
+        fieldsForViewCollections = fieldsForViewCollections +"{{"+ campo['FIELD_NAME'] +"}} | ";
+        if (--tasksToGo === 0) {
+            // No tasks left, good to go
+            onComplete();
+        }
+    }
+
 }
-else if (action === UI) {
-    createUI();
+
+getAllCollectionFieldsForCheck = function(listaDeCampos, callback) {
+    var allCollectionFieldsForCheck = "";
+    var onComplete = function() {
+        callback(null, allCollectionFieldsForCheck);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+
+    for (var i = 0; i < listaDeCampos.length; i++) {
+        var campo = listaDeCampos[i];
+        allCollectionFieldsForCheck = allCollectionFieldsForCheck + campo['FIELD_NAME'] + ": " + campo['COLLECTION_FIELD__TYPE'] + ", ";
+        if (--tasksToGo === 0) {
+            // No tasks left, good to go
+            onComplete();
+        }
+    }
+
 }
-else {
-    console.error(errorr.erroUso);
+
+getAllSchemaFieldItens = function(tagsDetalhesCampos,listaDeCampos, callback) {
+
+    var onComplete = function() {
+        callback(null, schemaEstrutura);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+    var schemaEstrutura = "";
+    for (var i = 0; i < listaDeCampos.length; i++) {
+
+        uf.getSchemaFieldItemFromTemplateFile(template,listaDeCampos[i],tagsDetalhesCampos,function(err, data){
+            schemaEstrutura = schemaEstrutura+data;
+            if (--tasksToGo === 0) {
+                // No tasks left, good to go
+                onComplete();
+            }
+        });
+
+    }
+
 }
+
+
+setTimeout(function(){
+    // CODIGO PRINCIPAL
+    if (action === ALL) {
+        createAPI();
+        createRoute();
+        createUI();
+
+    }
+    else if (action === API) {
+        createAPI();
+    }
+    else if (action === ROUTE) {
+        createRoute();
+    }
+    else if (action === UI) {
+        createUI();
+    }
+    else {
+        console.error(errorr.erroUso);
+    }
+
+}, 1000);

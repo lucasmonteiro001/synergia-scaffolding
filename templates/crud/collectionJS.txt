@@ -4,16 +4,7 @@ import { Mongo } from 'meteor/mongo';
 export const COLLECTION_VAR = new Mongo.Collection('COLLECTION_NAME');
 
 COLLECTION_VAR_Schema = new SimpleSchema({
-    "nome": {
-        type: String,
-        defaultValue: "",
-        label: "Nome"
-    },
-    "telefone": {
-        type: String,
-        defaultValue: "",
-        label: "Telefone"
-    },
+SCHEMA_FIELD_ITENS
     "userId": {
         type: String,
         label: "Associated User ID"

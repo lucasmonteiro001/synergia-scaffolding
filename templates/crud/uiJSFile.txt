@@ -36,8 +36,7 @@ Template.COLLECTION_NAMEAdd.events({
             event.preventDefault();
 
             const COLLECTION_NAMEData = {
-                nome: template.find('[id="inputNome"]').value.trim(),
-                telefone: template.find('[id="inputTelefone"]').value.trim(),
+                COLLECTION_FIELDS_JS
                 userId: ''
             };
 

@@ -1,0 +1,5 @@
+    "FIELD_NAME": {
+        type: COLLECTION_FIELD__TYPE,
+        defaultValue: "COLLECTION_FIELD_DEFAULT_VALUE",
+        label: "FIELD_LABEL"
+    },

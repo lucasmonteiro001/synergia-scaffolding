@@ -6,7 +6,7 @@ Meteor.methods({
 
         dataObj.userId = this.userId;
 
-        check(dataObj,{nome:String,telefone:String,userId:String});
+        check(dataObj,{COLLECTION_FIELDS_FOR_CHECK userId:String});
 
         COLLECTION_VAR.insert( dataObj, ( error ) => {
             if ( error ) {

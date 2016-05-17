@@ -1,0 +1,7 @@
+
+           <div class="form-group">
+              <label class="col-md-2 control-label" for="FIELD_NAME">FIELD_LABEL</label>
+              <div class="col-md-10">
+                <input type="FIELD_TYPE" id="FIELD_NAME" name="FIELD_NAME" class="form-control" >
+              </div>
+            </div>
