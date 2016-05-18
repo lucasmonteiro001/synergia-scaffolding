@@ -209,12 +209,8 @@ var createRoute = function () {
 // funcao para criar os arquivos relacionados a UI
 var createUI = function () {
 
-    var location = "",
-        path = basePath + 'ui/',
-        folder = path + permission + '/' + collectionName,
-        uiHTMLFile = folder + '/' + collectionName + '.html',
-        uiJSFile = folder + '/' + collectionName + '.js',
-        fileImport = msg.getImport('../../../ui/' + permission + '/' + collectionName);
+    var location = "";
+
 
     msg.inicio(UI);
 
@@ -223,13 +219,21 @@ var createUI = function () {
         return;
     }
 
-    path = basePath + 'ui/';
-    folder = path + permission + '/' + collectionName;
-    uiHTMLFile = folder + '/' + collectionName + '.html';
-    uiJSFile = folder + '/' + collectionName + '.js';
-    fileImport = msg.getImport('../../../ui/' + permission + '/' + collectionName);
+    var path = basePath + 'ui/';
+    var folder = path + permission + '/' + collectionName;
+    var uiHTMLFile = folder + '/' + collectionName + '.html';
+    var uiJSFile = folder + '/' + collectionName + '.js';
+    var fileImport = msg.getImport('../../../ui/' + permission + '/' + collectionName);
+    var menuFileAuthenticated = path + 'globals' + '/authenticated-menu.html',
+        menuFilePublic = path + 'globals' + '/public-menu.html';
 
-
+    //Alterar o Menu Principal
+    var itemDeMenu = "<li class=\"{{currentRoute '"+collectionName+"'}}\"><a href=\"{{pathFor '"+collectionName+"'}}\"><i class=\"fa fa-diamond\"></i> <span class=\"nav-label\">"+msg.toCamelCase(collectionName)+"</span></a></li>";
+    if(permission=='authenticated') {
+        uf.insertLineInFileIfNotExists(menuFileAuthenticated,itemDeMenu,'</template>');
+    } else if(permission=='public') {
+        uf.insertLineInFileIfNotExists(menuFilePublic,itemDeMenu,'</template>');
+    }
 
     uf.mkdir(folder);
     uf.createFile(uiHTMLFile);
@@ -237,13 +241,12 @@ var createUI = function () {
         getAllFormItens(tagsDetalhesCampos,listaDeCampos, function(err, data2){
             uf.updateFileWithOneTag(uiHTMLFile,'FORM_STRUTURE',data2);
         });
-
         setTimeout(function(){
             getFieldsForViewCollections(listaDeCampos, function(err, data3){
                 uf.updateFileWithOneTag(uiHTMLFile,'FIELDS_FOR_VIEW_COLLECTIONS',data3);
             });
 
-        }, 1000);
+        }, 2500);
 
 
 
@@ -369,9 +372,12 @@ getAllSchemaFieldItens = function(tagsDetalhesCampos,listaDeCampos, callback) {
 setTimeout(function(){
     // CODIGO PRINCIPAL
     if (action === ALL) {
+
+
         createAPI();
         createRoute();
         createUI();
+
 
     }
     else if (action === API) {

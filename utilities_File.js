@@ -3,42 +3,50 @@ var prependFile = require('prepend-file');
 var fse = require('fs-extra');
 var path = require('path');
 var msg = require('./utilities_Msg');
+var readline = require('readline');
 
 
-
-var fileExists = function(filePath)
-{
-    try
-    {
+var fileExists = function (filePath) {
+    try {
         return fs.statSync(filePath).isFile();
     }
-    catch (err)
-    {
+    catch (err) {
         return false;
     }
 }
 
 
-var readFile = function(file) {
-    fs.readFile(file, 'utf8', function(err, contents) {
-        if(err) console.log(err);
+var readFile = function (file) {
+    fs.readFile(file, 'utf8', function (err, contents) {
+        if (err) console.log(err);
         console.log(contents);
     });
 };
 
-var append = function(file, content) {
+var append = function (file, content) {
 
     try {
-        fs.appendFile(file, content, function (err) {
-            if(err) {
-                console.log(err);
-                return;
-            }
-        });
+
+        contentExistisIntheFile(file, content, function(err,data) {
+
+                if (data===false) {
+
+                    fs.appendFile(file, content, function (err) {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+                    });
+                } else {
+                    console.log(file + ": O conteúdo já foi inserido");
+                }
+            });
+
+
     } catch (e) {
         createFile(file);
         fs.appendFile(file, content, function (err) {
-            if(err) {
+            if (err) {
                 console.log(err);
                 return;
             }
@@ -48,11 +56,21 @@ var append = function(file, content) {
     console.log("Upd - " + file);
 }
 
-var prepend = function(file, content) {
+var prepend = function (file, content) {
     content = content + "\n";
     // fs.appendFileSync(file, content, encoding='utf8');
     try {
-        prependFile.sync(file, content);
+        contentExistisIntheFile(file, content, function(err,data) {
+
+            if (data===false) {
+
+                prependFile.sync(file, content);
+
+            } else {
+                console.log(file + ": O conteúdo já foi inserido");
+            }
+        });
+
     } catch (e) {
         createFile(file);
         prependFile.sync(file, content);
@@ -61,13 +79,13 @@ var prepend = function(file, content) {
     console.log("Upd - " + file);
 }
 
-var rmDir = function(path) {
+var rmDir = function (path) {
     var files = [];
-    if( fs.existsSync(path) ) {
+    if (fs.existsSync(path)) {
         files = fs.readdirSync(path);
-        files.forEach(function(file,index){
+        files.forEach(function (file, index) {
             var curPath = path + "/" + file;
-            if(fs.lstatSync(curPath).isDirectory()) { // recurse
+            if (fs.lstatSync(curPath).isDirectory()) { // recurse
                 rmDir(curPath);
             } else { // delete file
                 fs.unlinkSync(curPath);
@@ -79,18 +97,18 @@ var rmDir = function(path) {
     }
 };
 
-var mkdir = function(folder) {
+var mkdir = function (folder) {
     try {
         rmDir(folder);
     } catch (e) {
 
     }
     var r = fse.mkdirsSync(folder);
-    if(r) console.log("Crt - " + folder);
+    if (r) console.log("Crt - " + folder);
 }
 
 // deletar arquivo ou pasta
-var removeFile = function(el) {
+var removeFile = function (el) {
     try {
         fs.unlinkSync(el);
         console.log("Del - " + el);
@@ -99,7 +117,7 @@ var removeFile = function(el) {
     }
 }
 
-var createFile = function(file) {
+var createFile = function (file) {
     // primeiro remove o arquivo, depois cria
     try {
         removeFile(file);
@@ -110,12 +128,12 @@ var createFile = function(file) {
     console.log("Crt - " + file);
 }
 
-var exists = function(file) {
+var exists = function (file) {
     fse.ensureFileSync(file);
 }
 
-var setTemplateFile = function(filePath,fileName,keyTemplate,collectionName, callback) {
-    console.log("File:"+fileName+" | keyTemplate:"+keyTemplate+" | collectionName:"+collectionName);
+var setTemplateFile = function (filePath, fileName, keyTemplate, collectionName, callback) {
+
     if (keyTemplate != "" && fileExists('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt')) {
         fs.readFile('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt', 'utf8', function (err, data) {
             if (err) {
@@ -124,7 +142,9 @@ var setTemplateFile = function(filePath,fileName,keyTemplate,collectionName, cal
             var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
             var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
             append(filePath, result);
-            setTimeout(function(){ callback(null,"Complete"); }, 500);
+            setTimeout(function () {
+                callback(null, "Complete");
+            }, 500);
 
 
         });
@@ -138,7 +158,9 @@ var setTemplateFile = function(filePath,fileName,keyTemplate,collectionName, cal
                 var tmpData = data.replace(/COLLECTION_VAR/g, msg.toCamelCase(collectionName));
                 var result = tmpData.replace(/COLLECTION_NAME/g, collectionName);
                 append(filePath, result);
-                setTimeout(function(){ callback(null,"Complete"); }, 500);
+                setTimeout(function () {
+                    callback(null, "Complete");
+                }, 500);
             });
 
         }
@@ -148,10 +170,10 @@ var setTemplateFile = function(filePath,fileName,keyTemplate,collectionName, cal
 
 }
 
-var updateFileWithManyTags = function(filePath,Tags,Valores) {
+var updateFileWithManyTags = function (filePath, Tags, Valores) {
 
-    var onComplete = function(result) {
-        fs.truncate(filePath, 0, function(){
+    var onComplete = function (result) {
+        fs.truncate(filePath, 0, function () {
             append(filePath, result);
         })
 
@@ -181,9 +203,9 @@ var updateFileWithManyTags = function(filePath,Tags,Valores) {
 
 }
 
-var updateFileWithOneTag = function(filePath,Tag,Valor) {
-    var onComplete = function(result) {
-        fs.truncate(filePath, 0, function(){
+var updateFileWithOneTag = function (filePath, Tag, Valor) {
+    var onComplete = function (result) {
+        fs.truncate(filePath, 0, function () {
             append(filePath, result);
         })
 
@@ -206,17 +228,17 @@ var updateFileWithOneTag = function(filePath,Tag,Valor) {
 
 }
 
-var getFormItemFromTemplateFile = function(keyTemplate,formItem,formTags,callback) {
+var getFormItemFromTemplateFile = function (keyTemplate, formItem, formTags, callback) {
     var dataTmp = "";
     var result = "";
 
 
-    var onComplete = function(result) {
+    var onComplete = function (result) {
         callback(null, result);
     };
     var tasksToGo = formTags.length;
 
-    var fileName = "itemFormTemplate-"+formItem["ITEM_TYPE"];
+    var fileName = "itemFormTemplate-" + formItem["ITEM_TYPE"];
 
     if (keyTemplate != "" && fileExists('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt')) {
         fs.readFile('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt', 'utf8', function (err, data) {
@@ -232,7 +254,6 @@ var getFormItemFromTemplateFile = function(keyTemplate,formItem,formTags,callbac
                     onComplete(dataTmp);
                 }
             }
-
 
 
         });
@@ -256,20 +277,21 @@ var getFormItemFromTemplateFile = function(keyTemplate,formItem,formTags,callbac
 
             });
 
-        } else {onComplete("");}
+        } else {
+            onComplete("");
+        }
 
 
     }
 }
 
 
-
-var getSchemaFieldItemFromTemplateFile = function(keyTemplate,formItem,formTags,callback) {
+var getSchemaFieldItemFromTemplateFile = function (keyTemplate, formItem, formTags, callback) {
     var dataTmp = "";
     var result = "";
 
 
-    var onComplete = function(result) {
+    var onComplete = function (result) {
         callback(null, result);
     };
     var tasksToGo = formTags.length;
@@ -292,7 +314,6 @@ var getSchemaFieldItemFromTemplateFile = function(keyTemplate,formItem,formTags,
             }
 
 
-
         });
     } else {
 
@@ -314,14 +335,16 @@ var getSchemaFieldItemFromTemplateFile = function(keyTemplate,formItem,formTags,
 
             });
 
-        } else {onComplete("");}
+        } else {
+            onComplete("");
+        }
 
 
     }
 }
 
 
-var getFieldsFromCSV = function(file) {
+var getFieldsFromCSV = function (file) {
 
     var fileContents = fs.readFileSync(file);
     //var fileContents = fs.readFileSync(file);
@@ -340,7 +363,7 @@ var getFieldsFromCSV = function(file) {
         else {
             var linha = lines[i];
 
-            if(linha!="") {
+            if (linha != "") {
                 var dadosDoCampo = linha.split(";");
 
                 for (j = 0; j < dadosDoCampo.length; j++) {
@@ -358,7 +381,7 @@ var getFieldsFromCSV = function(file) {
 
 }
 
-var getFieldsDescriptionsTAGFromCSV = function(file) {
+var getFieldsDescriptionsTAGFromCSV = function (file) {
 
     var fileContents = fs.readFileSync(file);
     //var fileContents = fs.readFileSync(file);
@@ -367,7 +390,7 @@ var getFieldsDescriptionsTAGFromCSV = function(file) {
     var listCampos = [];
     var cabecalho = [];
 
-    if(lines.length>0) {
+    if (lines.length > 0) {
         return lines[0].split(";");
     } else {
         return cabecalho;
@@ -376,6 +399,87 @@ var getFieldsDescriptionsTAGFromCSV = function(file) {
 }
 
 
+var insertLineInFileIfNotExists = function (filePath, newLine, beforeOfLine) {
+
+    var newFile = "";
+    var existis = false;
+
+    var onComplete = function (result) {
+        if (existis == false && newLine != beforeOfLine) {
+            fs.truncate(filePath, 0, function () {
+                append(filePath, result);
+            })
+        }
+
+
+    };
+
+
+    var rd = readline.createInterface({
+        input: fs.createReadStream(filePath),
+        output: process.stdout,
+        terminal: false
+    });
+
+    rd.on('line', function (line) {
+        if (beforeOfLine == line) {
+            newFile = newFile + newLine + "\n";
+            newFile = newFile + line + "\n";
+        }
+        else {
+            if (newLine == line) {
+                existis = true;
+            } else {
+                newFile = newFile + line + "\n";
+            }
+
+        }
+
+
+        //console.log(line);
+    }).on('close', () => {
+        onComplete(newFile);
+    });
+    ;
+
+
+}
+
+
+var contentExistisIntheFile = function (filePath, newLine,callback) {
+
+    var conteudo = "";
+    var onComplete = function () {
+        console.log("Comparação; Arquivo:"+filePath+" | Tamanho do Conteúdo::"+conteudo.length);
+        if(conteudo.length > 0 && conteudo.indexOf(newLine) > -1) {
+            console.log("Resultado: True");
+            callback(null,true);
+        } else {
+            console.log("Resultado: False");
+            callback(null,false);
+        }
+
+
+    };
+
+
+    var rd = readline.createInterface({
+        input: fs.createReadStream(filePath),
+        output: process.stdout,
+        terminal: false
+    });
+
+    rd.on('line', function (line) {
+        conteudo = conteudo + line;
+
+    }).on('close', () => {
+        onComplete();
+    });
+    ;
+
+
+}
+
 module.exports = {
     createFile: createFile,
     mkdir: mkdir,
@@ -383,13 +487,15 @@ module.exports = {
     append: append,
     readFile: readFile,
     exists: exists,
-    setTemplateFile:setTemplateFile,
-    getFieldsDescriptionsTAGFromCSV:getFieldsDescriptionsTAGFromCSV,
-    getFieldsFromCSV:getFieldsFromCSV,
-    getFormItemFromTemplateFile:getFormItemFromTemplateFile,
-    updateFileWithOneTag:updateFileWithOneTag,
-    updateFileWithManyTags:updateFileWithManyTags,
-    getSchemaFieldItemFromTemplateFile:getSchemaFieldItemFromTemplateFile,
-    fileExists:fileExists
+    setTemplateFile: setTemplateFile,
+    getFieldsDescriptionsTAGFromCSV: getFieldsDescriptionsTAGFromCSV,
+    getFieldsFromCSV: getFieldsFromCSV,
+    getFormItemFromTemplateFile: getFormItemFromTemplateFile,
+    updateFileWithOneTag: updateFileWithOneTag,
+    updateFileWithManyTags: updateFileWithManyTags,
+    getSchemaFieldItemFromTemplateFile: getSchemaFieldItemFromTemplateFile,
+    fileExists: fileExists,
+    insertLineInFileIfNotExists: insertLineInFileIfNotExists,
+    contentExistisIntheFile:contentExistisIntheFile
 
 }

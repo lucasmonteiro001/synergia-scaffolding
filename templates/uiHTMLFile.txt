@@ -1,8 +1,8 @@
 <template name="COLLECTION_NAME">
-    <div class="container">
-        <div class="row">
+    {{> pageHeading title='COLLECTION_NAME' }}
+
+    <div class="wrapper wrapper-content white-bg animated fadeInRight">
             Página em Branco - COLLECTION_NAME
-        </div>
     </div>
 
 </template>

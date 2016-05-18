@@ -1,7 +1,10 @@
 <template name="COLLECTION_NAME">
-    <div class="container">
+    {{> pageHeading title='COLLECTION_NAME' }}
+
+    <div class="wrapper wrapper-content white-bg animated fadeInRight">
         <div class="row">
-            <div class="col-xs-12 col-sm-12">
+            <div class="col-lg-12">
+
                 <h4 class="page-header">Adicionar COLLECTION_NAME</h4>
                 {{> COLLECTION_NAMEAdd}}
             </div>
@@ -15,6 +18,9 @@
     </div>
 
 </template>
+
+
+
 
 <template name="COLLECTION_NAMEAdd">
   <div class="row">
