@@ -5,7 +5,7 @@ Meteor.publish( 'COLLECTION_NAME', function(){
 
     if ( user ) {
         var data = [
-            COLLECTION_VAR.find( { "userId": user } )
+            COLLECTION_VAR.find( )
         ];
     }
 

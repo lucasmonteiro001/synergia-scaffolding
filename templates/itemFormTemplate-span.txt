@@ -1,0 +1,6 @@
+                        <div class="form-group">
+                            <label class="col-md-2 control-label" for="FIELD_NAME">Informe um FIELD_NAME</label>
+                            <div class="col-md-10">
+                                <span id="FIELD_NAME"> </span>
+                            </div>
+                        </div>

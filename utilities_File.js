@@ -19,7 +19,6 @@ var fileExists = function (filePath) {
 var readFile = function (file) {
     fs.readFile(file, 'utf8', function (err, contents) {
         if (err) console.log(err);
-        console.log(contents);
     });
 };
 
@@ -265,7 +264,7 @@ var getFormItemFromTemplateFile = function (keyTemplate, formItem, formTags, cal
                     return console.log(err);
                 }
                 dataTmp = data;
-                //console.log(formTags);
+
                 for (var i = 0; i < formTags.length; i++) {
                     var regex = new RegExp(formTags[i], 'g');
                     dataTmp = dataTmp.replace(regex, formItem[formTags[i]]);
@@ -285,6 +284,62 @@ var getFormItemFromTemplateFile = function (keyTemplate, formItem, formTags, cal
     }
 }
 
+var getSpanItemFromTemplateFile = function (keyTemplate, formItem, formTags, callback) {
+    var dataTmp = "";
+    var result = "";
+
+
+    var onComplete = function (result) {
+        callback(null, result);
+    };
+    var tasksToGo = formTags.length;
+
+    var fileName = "itemFormTemplate-span";
+
+    if (keyTemplate != "" && fileExists('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt')) {
+        fs.readFile('./node_modules/synergia-scaffolding/templates/' + keyTemplate + '/' + fileName + '.txt', 'utf8', function (err, data) {
+            if (err) {
+                return console.log(err);
+            }
+            dataTmp = data;
+            for (var i = 0; i < formTags.length; i++) {
+                var regex = new RegExp(formTags[i], 'g');
+                dataTmp = dataTmp.replace(regex, formItem[formTags[i]]);
+                if (--tasksToGo === 0) {
+                    // No tasks left, good to go
+                    onComplete(dataTmp);
+                }
+            }
+
+
+        });
+    } else {
+
+        if (fileExists('./node_modules/synergia-scaffolding/templates/' + fileName + '.txt')) {
+            fs.readFile('./node_modules/synergia-scaffolding/templates/' + fileName + '.txt', 'utf8', function (err, data) {
+                if (err) {
+                    return console.log(err);
+                }
+                dataTmp = data;
+
+                for (var i = 0; i < formTags.length; i++) {
+                    var regex = new RegExp(formTags[i], 'g');
+                    dataTmp = dataTmp.replace(regex, formItem[formTags[i]]);
+                    if (--tasksToGo === 0) {
+                        // No tasks left, good to go
+                        onComplete(dataTmp);
+                    }
+                }
+
+            });
+
+        } else {
+            onComplete("");
+        }
+
+
+    }
+}
 
 var getSchemaFieldItemFromTemplateFile = function (keyTemplate, formItem, formTags, callback) {
     var dataTmp = "";
@@ -323,7 +378,7 @@ var getSchemaFieldItemFromTemplateFile = function (keyTemplate, formItem, formTa
                     return console.log(err);
                 }
                 dataTmp = data;
-                //console.log(formTags);
+
                 for (var i = 0; i < formTags.length; i++) {
                     var regex = new RegExp(formTags[i], 'g');
                     dataTmp = dataTmp.replace(regex, formItem[formTags[i]]);
@@ -436,7 +491,7 @@ var insertLineInFileIfNotExists = function (filePath, newLine, beforeOfLine) {
         }
 
 
-        //console.log(line);
+
     }).on('close', () => {
         onComplete(newFile);
     });
@@ -450,12 +505,10 @@ var contentExistisIntheFile = function (filePath, newLine,callback) {
 
     var conteudo = "";
     var onComplete = function () {
-        console.log("Comparação; Arquivo:"+filePath+" | Tamanho do Conteúdo::"+conteudo.length);
-        if(conteudo.length > 0 && conteudo.indexOf(newLine) > -1) {
-            console.log("Resultado: True");
+
+        if(conteudo.length > 0 && conteudo.search(newLine) > -1) {
             callback(null,true);
         } else {
-            console.log("Resultado: False");
             callback(null,false);
         }
 
@@ -496,6 +549,7 @@ module.exports = {
     getSchemaFieldItemFromTemplateFile: getSchemaFieldItemFromTemplateFile,
     fileExists: fileExists,
     insertLineInFileIfNotExists: insertLineInFileIfNotExists,
-    contentExistisIntheFile:contentExistisIntheFile
+    contentExistisIntheFile:contentExistisIntheFile,
+    getSpanItemFromTemplateFile:getSpanItemFromTemplateFile
 
 }

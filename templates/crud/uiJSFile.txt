@@ -1,6 +1,8 @@
 import {Template} from 'meteor/templating';
 import './COLLECTION_NAME.html';
+import '../../globals/page-heading.html';
 import { COLLECTION_VAR } from '../../../api/COLLECTION_NAME/COLLECTION_NAME.js'
+import {FlowRouter} from 'meteor/kadira:flow-router';
 
 
 let template;
@@ -13,7 +15,9 @@ Template.COLLECTION_NAME.onCreated(() => {
 
 
 
-Template.COLLECTION_NAME.helpers({});
+Template.COLLECTION_NAME.helpers({
+
+});
 
 Template.COLLECTION_NAMEAdd.onCreated(() => {
 
@@ -36,17 +40,19 @@ Template.COLLECTION_NAMEAdd.events({
             event.preventDefault();
 
             const COLLECTION_NAMEData = {
+               userId: '',
                 COLLECTION_FIELDS_JS
-                userId: ''
             };
 
                 Meteor.call('COLLECTION_NAME.insert', COLLECTION_NAMEData, (error) => {
                     if (error) {
                         alert(error.reason);
                     } else {
-                        template.find('form').reset();
+
+                        FlowRouter.go('COLLECTION_NAME');
                     }
                 });
+
 
 
         }
@@ -56,8 +62,142 @@ Template.COLLECTION_NAMEAdd.events({
 
 });
 
+var updateFields = function(template) {
+
+    var id = FlowRouter.getParam('_id');
+    const COLLECTION_NAMEs = COLLECTION_VAR.findOne({_id: id});
+    if (COLLECTION_NAMEs && template.view.isRendered) {
+        template.find('[id="nomeObjeto"]').textContent = COLLECTION_NAMEs.COLLECTION_FIRST_FIELD;
+        template.find('[id="bc-nomeObjeto"]').textContent = COLLECTION_NAMEs.COLLECTION_FIRST_FIELD;
+        COLLECTION_UPDATE_FIELDS_JS
+    }
+
+};
+
+var updateSpans = function(template) {
+
+    var id = FlowRouter.getParam('_id');
+    const COLLECTION_NAMEs = COLLECTION_VAR.findOne({_id: id});
+    if (COLLECTION_NAMEs && template.view.isRendered) {
+        template.find('[id="nomeObjeto"]').textContent = COLLECTION_NAMEs.COLLECTION_FIRST_FIELD;
+        template.find('[id="bc-nomeObjeto"]').textContent = COLLECTION_NAMEs.COLLECTION_FIRST_FIELD;
+        COLLECTION_VIEW_FIELDS_JS
+
+    }
+
+}
+
 
 Template.COLLECTION_NAMEView.onCreated(() => {
+    Meteor.subscribe('COLLECTION_NAME');
+
+});
+
+Template.COLLECTION_NAMEView.onRendered(() => {
+    var id = FlowRouter.getParam('_id');
+    Template.instance().COLLECTION_NAMENome = "";
+    Template.instance().COLLECTION_NAMEID = id;
+    updateSpans(Template.instance());
+
+});
+
+Template.COLLECTION_NAMEView.helpers({
+    COLLECTION_NAMEID() {
+        return FlowRouter.getParam('_id');
+    },
+    COLLECTION_NAMEs() {
+
+        updateSpans(Template.instance());
+    }
+});
+
+Template.COLLECTION_NAMEView.events({
+
+    //Eventos do template de inserção
+
+    'click #linkExcluir' (event, template) {
+
+        var sel = event.target;
+        var id = sel.getAttribute('value');
+
+        Meteor.call('COLLECTION_NAME.delete',id, (error) => {
+            if (error) {
+                alert(error.reason);
+            } else {
+                FlowRouter.go('COLLECTION_NAME');
+            }
+        });
+
+
+    }
+
+
+
+
+});
+
+
+
+Template.COLLECTION_NAMEEdit.onCreated(() => {
+
+    template = Template.instance();
+    
+    
+    Meteor.subscribe('COLLECTION_NAME');
+
+});
+
+Template.COLLECTION_NAMEEdit.onRendered(() => {
+    updateFields(Template.instance());
+
+});
+
+Template.COLLECTION_NAMEEdit.helpers({
+    COLLECTION_NAMEID() {
+        return FlowRouter.getParam('_id');
+    },    
+    COLLECTION_NAMEs() {
+        
+        updateFields(Template.instance());
+    }
+});
+
+Template.COLLECTION_NAMEEdit.events({
+
+    //Eventos do template de inserção
+
+    'submit form' (event, template) {
+        
+        template = Template.instance();
+
+
+
+        event.preventDefault();
+        const id = FlowRouter.getParam('_id');
+        const COLLECTION_NAMEData = {
+            COLLECTION_FIELDS_JS
+        };
+
+        Meteor.call('COLLECTION_NAME.update',id, COLLECTION_NAMEData, (error) => {
+            if (error) {
+                alert(error.reason);
+            } else {
+                FlowRouter.go('/COLLECTION_NAMEView/'+id);
+            }
+        });
+
+
+    }
+
+
+
+
+});
+
+
+
+
+Template.COLLECTION_NAMEList.onCreated(() => {
 
     Meteor.subscribe('COLLECTION_NAME');
 
@@ -65,12 +205,25 @@ Template.COLLECTION_NAMEView.onCreated(() => {
 
 });
 
-Template.COLLECTION_NAMEView.helpers({
+Template.COLLECTION_NAMEList.helpers({
     COLLECTION_NAMEs() {
         const COLLECTION_NAMEs = COLLECTION_VAR.find();
         if ( COLLECTION_NAMEs ) {
             return COLLECTION_NAMEs;
         }
+    },
+    'settings': function () {
+        return {
+            collection: COLLECTION_VAR,
+            rowsPerPage: 10,
+            showFilter: true,
+            showRowCount: true,
+            showColumnToggles: true,
+            multiColumnSort: true,
+            fields: [
+                COLLECTION_COLUMNS_LIST
+            ]
+        };
     }
 });
 

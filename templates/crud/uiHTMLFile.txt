@@ -1,58 +1,162 @@
 <template name="COLLECTION_NAME">
-    {{> pageHeading title='COLLECTION_NAME' }}
+    {{> pageHeading title='Lista de COLLECTION_NAMEs' }}
 
     <div class="wrapper wrapper-content white-bg animated fadeInRight">
         <div class="row">
             <div class="col-lg-12">
+                <div class="pull-right btAdd">
+                    <a href="{{pathFor 'COLLECTION_NAMEAdd'}}" class="btn btn-primary">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i> Adicionar</a>
+                </div>
+            </div>
+        </div>
 
-                <h4 class="page-header">Adicionar COLLECTION_NAME</h4>
-                {{> COLLECTION_NAMEAdd}}
-            </div>
-        </div>
         <div class="row">
-            <div class="col-xs-12 col-sm-12">
-                <h4 class="page-header">COLLECTION_NAMEs</h4>
-                {{> COLLECTION_NAMEView}}
+            <div class="col-lg-12">
+                {{> COLLECTION_NAMEList}}
             </div>
         </div>
+
     </div>
 
 </template>
-
-
-
 
 <template name="COLLECTION_NAMEAdd">
-  <div class="row">
-    <div class="col-md-12 col-sm-12 col-xs-12">
-      <div class="panel panel-default">
-        <div class="panel-heading clearfix">
-          <i class="icon-calendar"></i>
-          <h3 class="panel-title">Cadastrar COLLECTION_NAME</h3>
-        </div>
-         <div class="panel-body">
-            <form class="form-horizontal row-border" id="userForm" data-toggle="validator" role="form">
-                FORM_STRUTURE
+    {{> pageHeading title='Cadastrar COLLECTION_NAME' }}
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+
+    <div class="wrapper wrapper-content white-bg animated fadeInRight" style="padding-bottom:10px;">
+        <form class="form-horizontal row-border" id="userForm" data-toggle="validator" role="form">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel-body">
+                    FORM_STRUTURE
+                    </div>
                 </div>
-            </form>
-         </div>
-      </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pull-right btAdd">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <a href="{{pathFor 'COLLECTION_NAME'}}" class="btn">Voltar</a>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
-  </div>
+
 
 </template>
 
+
+<template name="COLLECTION_NAMEEdit">
+    {{ COLLECTION_NAMEs }}
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-12">
+            <h2 id="nomeObjeto"></h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{pathFor route=home}}">Home</a>
+                </li>
+                <li>
+                    <a href="{{pathFor route=COLLECTION_NAME}}">Lista de COLLECTION_NAMEs</a>
+                </li>
+
+                <li class="active">
+                    <strong id="bc-nomeObjeto"></strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+
+    <div class="wrapper wrapper-content white-bg animated fadeInRight" style="padding-bottom:10px;">
+        <form class="form-horizontal row-border" id="userForm" data-toggle="validator" role="form">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel-body">
+                    FORM_EDIT_STRUTURE
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="pull-right btAdd">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <a href="{{pathFor 'COLLECTION_NAMEView'}}/{{COLLECTION_NAMEID}}" class="btn">Voltar</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+</template>
+
+
 <template name="COLLECTION_NAMEView">
-    <ul class="list-group">
-        {{#each COLLECTION_NAMEs}}
-            <li class="list-group-item">
-                FIELDS_FOR_VIEW_COLLECTIONS
-            </li>
-        {{else}}
-            <p class="alert alert-warning">Nenhum item cadastrado</p>
-        {{/each}}
-    </ul>
+    {{ COLLECTION_NAMEs }}
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-8">
+            <h2 id="nomeObjeto"></h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{pathFor route=home}}">Home</a>
+                </li>
+                <li>
+                    <a href="{{pathFor route=COLLECTION_NAME}}">Lista de COLLECTION_NAMEs</a>
+                </li>
+
+                <li class="active">
+                    <strong id="bc-nomeObjeto"></strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-4">
+            <div class="pull-right">
+                <a id="btn-criar-chamado-voltar" class="btn btn-default" href="{{pathFor 'COLLECTION_NAME'}}">
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    Voltar
+                </a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-expanded="false">
+                        Ações <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a id="linkEdit" href="{{pathFor 'COLLECTION_NAMEEdit'}}/{{COLLECTION_NAMEID}}"><i
+                                class="icon icon-pencil"></i>
+                            Editar...</a></li>
+                        <li class="divider"></li>
+                        <li><a id="linkExcluir" href="#!" value="{{COLLECTION_NAMEID}}"><i class="icon icon-pencil"></i>
+                            Excluir...</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="wrapper wrapper-content white-bg animated fadeInRight" style="padding-bottom:10px;">
+            <div class="row form-horizontal row-border">
+                <div class="col-lg-12">
+                    <div class="panel-body">
+                        VIEW_DATA_STRUTURE
+
+                    </div>
+                </div>
+            </div>
+    </div>
+
+
+</template>
+
+
+<template name="COLLECTION_NAMEList">
+    {{> reactiveTable settings=settings}}
+</template>
+
+<template name="COLLECTION_NAMETmpl">
+    <a href="{{pathFor 'COLLECTION_NAMEView'}}/{{_id}}">  {{COLLECTION_FIRST_FIELD}} </a>
 </template>

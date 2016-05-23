@@ -6,12 +6,25 @@ Meteor.methods({
 
         dataObj.userId = this.userId;
 
-        check(dataObj,{COLLECTION_FIELDS_FOR_CHECK userId:String});
+        check(dataObj,{nome: String, endereco: String, telefone: String, Email: String,  userId:String});
 
         COLLECTION_VAR.insert( dataObj, ( error ) => {
             if ( error ) {
                 console.log( error );
             }
         });
-    }
+    },
+    'COLLECTION_NAME.update' ( id,dataObj ) {
+
+        check(id, String);
+        check(dataObj,{nome: String, endereco: String, telefone: String, Email: String});
+
+        COLLECTION_VAR.update( id,{
+            $set: { nome: dataObj.nome, endereco: dataObj.endereco, telefone: dataObj.telefone, Email: dataObj.Email },
+        });
+    },
+    'COLLECTION_NAME.delete'(id) {
+        check(id, String);        
+        COLLECTION_VAR.remove(id);
+    },
 });

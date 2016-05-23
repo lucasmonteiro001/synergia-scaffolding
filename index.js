@@ -195,15 +195,19 @@ var createRoute = function () {
     path = basePath + 'startup/client';
     route = path + '/routes' + location;
     fileImport = msg.getImport('../../../ui/' + permission + '/' + collectionName + '/' + collectionName);
-    flowRouter = msg.getFlowRouterFunction(flowRouterName, collectionName);
+    msg.getFlowRouterFunction(flowRouterName, template, collectionName, function(err, flowRouter){
 
-    msg.inicio(ROUTE);
+        msg.inicio(ROUTE);
 
-    uf.exists(route);
-    uf.prepend(route, fileImport);
-    uf.append(route, flowRouter);
+        uf.exists(route);
+        uf.prepend(route, fileImport);
+        uf.append(route, flowRouter);
 
-    msg.fim(ROUTE);
+        msg.fim(ROUTE);
+
+    });
+
+
 }
 
 // funcao para criar os arquivos relacionados a UI
@@ -242,12 +246,27 @@ var createUI = function () {
             uf.updateFileWithOneTag(uiHTMLFile,'FORM_STRUTURE',data2);
         });
         setTimeout(function(){
-            getFieldsForViewCollections(listaDeCampos, function(err, data3){
-                uf.updateFileWithOneTag(uiHTMLFile,'FIELDS_FOR_VIEW_COLLECTIONS',data3);
+            getAllFormItens(tagsDetalhesCampos,listaDeCampos, function(err, data3){
+                uf.updateFileWithOneTag(uiHTMLFile,'FORM_EDIT_STRUTURE',data3);
+            });
+
+        }, 1500);
+
+        setTimeout(function(){
+            getAllSpanItens(tagsDetalhesCampos,listaDeCampos, function(err, data4){
+                uf.updateFileWithOneTag(uiHTMLFile,'VIEW_DATA_STRUTURE',data4);
             });
 
         }, 2500);
 
+        setTimeout(function(){
+            if(listaDeCampos[0]) {
+                var primeiroCampo = listaDeCampos[0];
+                uf.updateFileWithOneTag(uiHTMLFile,'COLLECTION_FIRST_FIELD',primeiroCampo['FIELD_NAME']);
+            }
+
+
+        }, 2800);
 
 
     });
@@ -258,7 +277,42 @@ var createUI = function () {
         getAllVarFormItens(listaDeCampos, function(err, data2){
             uf.updateFileWithOneTag(uiJSFile,'COLLECTION_FIELDS_JS',data2);
         });
+
+        setTimeout(function(){
+            getAllVarFormItensForUpdate(listaDeCampos, function(err, data3){
+                uf.updateFileWithOneTag(uiJSFile,'COLLECTION_UPDATE_FIELDS_JS',data3);
+            });
+
+        }, 1500);
+
+
+        setTimeout(function(){
+            getAllVarFormItensForView(listaDeCampos, function(err, data4){
+                uf.updateFileWithOneTag(uiJSFile,'COLLECTION_VIEW_FIELDS_JS',data4);
+            });
+
+        }, 2500);
+
+        setTimeout(function(){
+            getAllVarFormItensForList(listaDeCampos, function(err, data5){
+                uf.updateFileWithOneTag(uiJSFile,'COLLECTION_COLUMNS_LIST',data5);
+            });
+
+        }, 3500);
+
+        setTimeout(function(){
+            if(listaDeCampos[0]) {
+                var primeiroCampo = listaDeCampos[0];
+                uf.updateFileWithOneTag(uiJSFile,'COLLECTION_FIRST_FIELD',primeiroCampo['FIELD_NAME']);
+            }
+
+
+        }, 3800);        
+        
+
     });
+
+
 
 
 
@@ -299,7 +353,10 @@ getAllVarFormItens = function(listaDeCampos, callback) {
 
     for (var i = 0; i < listaDeCampos.length; i++) {
         var campo = listaDeCampos[i];
-        allVarFormItens = allVarFormItens + campo['FIELD_NAME'] + ": template.find('[id=\"" + campo['FIELD_NAME'] + "\"]').value.trim(),\n";
+        if(i!=0) {
+            allVarFormItens = allVarFormItens +",\n";
+        }
+        allVarFormItens = allVarFormItens + campo['FIELD_NAME'] + ": template.find('[id=\"" + campo['FIELD_NAME'] + "\"]').value.trim()";
         if (--tasksToGo === 0) {
             // No tasks left, good to go
             onComplete();
@@ -307,6 +364,100 @@ getAllVarFormItens = function(listaDeCampos, callback) {
     }
 
 }
+
+
+getAllVarFormItensForUpdate = function(listaDeCampos, callback) {
+    var allVarFormItens = "";
+    var onComplete = function() {
+        callback(null, allVarFormItens);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+
+    for (var i = 0; i < listaDeCampos.length; i++) {
+        var campo = listaDeCampos[i];
+        if(i!=0) {
+            allVarFormItens = allVarFormItens +"\n";
+        }
+        allVarFormItens = allVarFormItens + "template.find('[id=\""+campo['FIELD_NAME']+"\"]').value = "+collectionName+"s."+campo['FIELD_NAME']+";";
+        if (--tasksToGo === 0) {
+            // No tasks left, good to go
+            onComplete();
+        }
+    }
+
+}
+
+getAllVarFormItensForView = function(listaDeCampos, callback) {
+    var allVarFormItens = "";
+    var onComplete = function() {
+        callback(null, allVarFormItens);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+
+    for (var i = 0; i < listaDeCampos.length; i++) {
+        var campo = listaDeCampos[i];
+        if(i!=0) {
+            allVarFormItens = allVarFormItens +"\n";
+        }
+        allVarFormItens = allVarFormItens + "template.find('[id=\""+campo['FIELD_NAME']+"\"]').textContent = "+collectionName+"s."+campo['FIELD_NAME']+";";
+        if (--tasksToGo === 0) {
+            // No tasks left, good to go
+            onComplete();
+        }
+    }
+
+}
+
+
+getAllVarFormItensForList = function(listaDeCampos, callback) {
+    var allVarFormItens = "";
+    var onComplete = function() {
+        callback(null, allVarFormItens);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+
+    for (var i = 0; i < listaDeCampos.length; i++) {
+        var campo = listaDeCampos[i];
+        if(i!=0) {
+            allVarFormItens = allVarFormItens +",\n";
+            allVarFormItens = allVarFormItens + "{key:'"+campo['FIELD_NAME']+"', label:'"+campo['FIELD_LABEL']+"'}";
+        } else {
+            allVarFormItens = allVarFormItens + "{key:'"+campo['FIELD_NAME']+"', label:'"+campo['FIELD_LABEL']+"', tmpl: Template."+collectionName+"Tmpl}";
+        }
+
+        if (--tasksToGo === 0) {
+            // No tasks left, good to go
+            onComplete();
+        }
+    }
+
+}
+
+getAllSpanItens = function(tagsDetalhesCampos,listaDeCampos, callback) {
+
+    var onComplete = function() {
+        callback(null, formEstrutura);
+    };
+    var tasksToGo = listaDeCampos.length;
+
+    var formEstrutura = "";
+    for (var i = 0; i < listaDeCampos.length; i++) {
+
+        uf.getSpanItemFromTemplateFile(template,listaDeCampos[i],tagsDetalhesCampos,function(err, data){
+            formEstrutura = formEstrutura+data;
+            if (--tasksToGo === 0) {
+                // No tasks left, good to go
+                onComplete();
+            }
+        });
+
+    }
+
+}
+
 
 getFieldsForViewCollections = function(listaDeCampos, callback) {
     var fieldsForViewCollections = "";

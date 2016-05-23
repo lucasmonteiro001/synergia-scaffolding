@@ -13,4 +13,9 @@ SCHEMA_FIELD_ITENS
 
 COLLECTION_VAR.attachSchema( COLLECTION_VAR_Schema );
 
-
+// Deny all client-side updates on the Cliente collection
+COLLECTION_VAR.deny({
+    insert() { return true; },
+    update() { return true; },
+    remove() { return true; },
+});
